@@ -1,12 +1,37 @@
 import faiss
-from openai import OpenAI
 import PyPDF2
 import numpy as np
 import pickle
 import os
+import requests
+from config import get_api_config, validate_config, get_embedding_dimension
 
-# Set your OpenAI API key
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))  # Use environment variable
+# Validate and get configuration
+validate_config()
+config = get_api_config()
+
+
+def get_embedding(text, config):
+    """Get embedding for text using the configured API"""
+    if config["api_type"] == "openai":
+        from openai import OpenAI
+        client = OpenAI(api_key=config["api_key"])
+        response = client.embeddings.create(input=text, model=config["embedding_model"])
+        return response.data[0].embedding
+    
+    elif config["api_type"] == "ollama":
+        # Ollama API call
+        response = requests.post(
+            f"{config['base_url']}/api/embeddings",
+            json={"model": config["embedding_model"], "prompt": text}
+        )
+        if response.status_code == 200:
+            return response.json()["embedding"]
+        else:
+            raise Exception(f"Ollama API error: {response.status_code} - {response.text}")
+    
+    else:
+        raise ValueError(f"Unknown API type: {config['api_type']}")
 
 
 def pdf_to_vectors(pdf_path):
@@ -49,18 +74,19 @@ def pdf_to_vectors(pdf_path):
 
     print(f"✂️  Created {len(chunks)} chunks")
 
-    # Get embeddings from OpenAI
-    print("🔄 Getting embeddings from OpenAI...")
+    # Get embeddings using configured API
+    print(f"🔄 Getting embeddings using {config['api_type'].upper()} API...")
     embeddings = []
     for i, chunk in enumerate(chunks):
         print(f"Processing {i + 1}/{len(chunks)}")
-        response = client.embeddings.create(input=chunk, model="text-embedding-ada-002")
-        embeddings.append(response.data[0].embedding)
+        embedding = get_embedding(chunk, config)
+        embeddings.append(embedding)
 
     # Create FAISS index
     print("🗂️  Creating FAISS index...")
     embeddings = np.array(embeddings)
-    index = faiss.IndexFlatIP(1536)  # OpenAI embeddings are 1536 dimensions
+    embedding_dim = config["embedding_dim"]
+    index = faiss.IndexFlatIP(embedding_dim)
     index.add(embeddings.astype('float32'))
 
     # Save to files
