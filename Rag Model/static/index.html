@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG System - AI-Powered PDF Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <h1>RAG System</h1>
+                </div>
+                <div class="api-info" id="apiInfo">
+                    <i class="fas fa-circle status-indicator"></i>
+                    <span id="apiType">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-card glass-effect">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h2>Upload Your PDF</h2>
+                    <p>Get started by uploading a PDF document to chat with</p>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop your PDF here</p>
+                        <span>or</span>
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                        <input type="file" id="fileInput" accept=".pdf" hidden onchange="handleFileSelect(event)">
+                    </div>
+
+                    <div class="upload-progress hidden" id="uploadProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="progressText">Processing...</p>
+                    </div>
+
+                    <div class="document-info hidden" id="documentInfo">
+                        <div class="info-card">
+                            <i class="fas fa-file-alt"></i>
+                            <div>
+                                <h4 id="fileName">Document Name</h4>
+                                <p id="documentStats">Stats loading...</p>
+                            </div>
+                            <button class="btn-icon" onclick="clearDatabase()" title="Clear database">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Section -->
+            <section class="chat-section hidden" id="chatSection">
+                <div class="chat-container glass-effect">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-comments"></i> Chat with Your Document</h3>
+                        <button class="btn-icon" onclick="toggleUploadSection()">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-message">
+                            <i class="fas fa-robot"></i>
+                            <p>Hello! I'm ready to answer questions about your document. What would you like to know?</p>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="questionInput" 
+                                class="chat-input" 
+                                placeholder="Ask a question about your document..."
+                                onkeypress="handleEnterKey(event)"
+                            >
+                            <button class="btn-send" onclick="askQuestion()" id="sendButton">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-hint">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Try: "What is the main topic?" or "Summarize page 2"</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features-section" id="featuresSection">
+                <h2>Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card glass-effect">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Fast Processing</h3>
+                        <p>Upload and process PDFs in seconds with advanced AI</p>
+                    </div>
+                    <div class="feature-card glass-effect">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Semantic Search</h3>
+                        <p>Find relevant information using vector similarity</p>
+                    </div>
+                    <div class="feature-card glass-effect">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>AI Responses</h3>
+                        <p>Get accurate answers powered by LLMs</p>
+                    </div>
+                    <div class="feature-card glass-effect">
+                        <div class="feature-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Secure & Private</h3>
+                        <p>Your documents stay on your server</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>RAG System - Powered by AI &nbsp;|&nbsp; <i class="fas fa-heart"></i> &nbsp;Built with Flask & Ollama/OpenAI</p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Processing your request...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
