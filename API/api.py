@@ -2,7 +2,6 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-# Root endpoint
 @app.get("/")
 def root():
     return {"message": "Welcome to my FastAPI app!"}
@@ -11,7 +10,6 @@ def root():
 def welcome():
     return {"message": "Welcome to my FastAPI app!"}
 
-# Example GET API with a parameter
 @app.get("/user")
 def user_profile():
     return {
