@@ -1,18 +1,83 @@
 import faiss
-import openai
 import numpy as np
 import pickle
 import os
+import requests
+from config import get_api_config, validate_config
 
-# Set your OpenAI API key
-openai.api_key = os.getenv('OPENAI_API_KEY')  # Use environment variable
+# Validate and get configuration
+validate_config()
+config = get_api_config()
+
+
+def get_embedding(text, config):
+    """Get embedding for text using the configured API"""
+    if config["api_type"] == "openai":
+        from openai import OpenAI
+        client = OpenAI(api_key=config["api_key"])
+        response = client.embeddings.create(input=text, model=config["embedding_model"])
+        return response.data[0].embedding
+    
+    elif config["api_type"] == "ollama":
+        # Ollama API call
+        response = requests.post(
+            f"{config['base_url']}/api/embeddings",
+            json={"model": config["embedding_model"], "prompt": text}
+        )
+        if response.status_code == 200:
+            return response.json()["embedding"]
+        else:
+            raise Exception(f"Ollama API error: {response.status_code} - {response.text}")
+    
+    else:
+        raise ValueError(f"Unknown API type: {config['api_type']}")
+
+
+def get_chat_response(messages, config):
+    """Get chat response using the configured API"""
+    if config["api_type"] == "openai":
+        from openai import OpenAI
+        client = OpenAI(api_key=config["api_key"])
+        response = client.chat.completions.create(
+            model=config["chat_model"],
+            messages=messages
+        )
+        return response.choices[0].message.content
+    
+    elif config["api_type"] == "ollama":
+        # Ollama API call
+        # Convert messages to prompt format for Ollama
+        prompt = ""
+        for msg in messages:
+            role = msg["role"]
+            content = msg["content"]
+            if role == "system":
+                prompt += f"System: {content}\n\n"
+            elif role == "user":
+                prompt += f"User: {content}\n\n"
+        
+        response = requests.post(
+            f"{config['base_url']}/api/generate",
+            json={
+                "model": config["chat_model"],
+                "prompt": prompt,
+                "stream": False
+            }
+        )
+        if response.status_code == 200:
+            return response.json()["response"]
+        else:
+            raise Exception(f"Ollama API error: {response.status_code} - {response.text}")
+    
+    else:
+        raise ValueError(f"Unknown API type: {config['api_type']}")
 
 
 def ask_question(question):
     # Check if vector files exist
     if not os.path.exists("vectors.index") or not os.path.exists("chunks.pkl"):
         print("❌ Error: Vector database not found!")
-        print("🔧 Please run 'pdf_to_vectors.py' first to create the database.")
+        print("🔧 Please run 'pdf_vector.py' first to create the database.")
         return None
 
     try:
@@ -26,8 +91,8 @@ def ask_question(question):
         total_pages = data['total_pages']
 
         # Get question embedding
-        response = openai.Embedding.create(input=question, model="text-embedding-ada-002")
-        query_vector = np.array(response['data'][0]['embedding']).reshape(1, -1)
+        query_embedding = get_embedding(question, config)
+        query_vector = np.array(query_embedding).reshape(1, -1)
 
         # Search similar chunks
         scores, indices = index.search(query_vector.astype('float32'), 3)
@@ -47,18 +112,20 @@ def ask_question(question):
 
         context = '\n\n'.join(context_parts)
 
-        # Get answer from GPT with page context
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{
+        # Get answer using configured API
+        messages = [
+            {
                 "role": "system",
                 "content": f"You are answering questions about a {total_pages}-page document. When providing answers, mention page numbers when relevant."
-            }, {
+            },
+            {
                 "role": "user",
                 "content": f"Context: {context}\n\nQuestion: {question}\n\nAnswer based on the context:"
-            }]
-        )
-        return response.choices[0].message.content
+            }
+        ]
+        
+        answer = get_chat_response(messages, config)
+        return answer
 
     except Exception as e:
         print(f"❌ Error processing question: {str(e)}")
