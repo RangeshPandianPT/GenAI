@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Analyzer - AI Sentiment Analysis</title>
+    <meta name="description" content="Analyze the emotional tone of any text using AI-powered sentiment analysis">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-emoji">🎭</span>
+                <h1>Mood Analyzer</h1>
+            </div>
+            <p class="tagline">Discover the emotional tone of your text with AI</p>
+        </header>
+
+        <section class="analyzer-card">
+            <div class="input-section">
+                <label for="text-input" class="input-label">Enter your text</label>
+                <textarea 
+                    id="text-input" 
+                    class="text-input" 
+                    placeholder="Type or paste your text here to analyze its mood..."
+                    rows="5"
+                ></textarea>
+                <div class="char-count">
+                    <span id="char-counter">0</span> characters
+                </div>
+            </div>
+
+            <button id="analyze-btn" class="analyze-btn">
+                <span class="btn-text">Analyze Mood</span>
+                <span class="btn-loader hidden">
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                </span>
+            </button>
+        </section>
+
+        <section id="results-section" class="results-section hidden">
+            <div class="result-card" id="result-card">
+                <div class="emoji-display">
+                    <span id="result-emoji" class="result-emoji">😊</span>
+                </div>
+                
+                <div class="sentiment-label">
+                    <span id="sentiment-text">POSITIVE</span>
+                </div>
+
+                <div class="confidence-section">
+                    <div class="confidence-header">
+                        <span>Confidence</span>
+                        <span id="confidence-value">95%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div id="confidence-fill" class="confidence-fill" style="width: 95%"></div>
+                    </div>
+                </div>
+
+                <div class="scores-section">
+                    <h3>Detailed Scores</h3>
+                    <div id="scores-container" class="scores-container">
+                        <!-- Scores will be dynamically inserted -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="error-section" class="error-section hidden">
+            <div class="error-card">
+                <span class="error-emoji">⚠️</span>
+                <p id="error-message">Something went wrong</p>
+                <button id="retry-btn" class="retry-btn">Try Again</button>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Powered by <strong>Hugging Face</strong> 🤗 & <strong>FastAPI</strong> ⚡</p>
+        </footer>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
