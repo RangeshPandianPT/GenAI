@@ -19,12 +19,40 @@
 
     <main class="container">
         <header class="header">
-            <div class="logo">
-                <span class="logo-emoji">🎭</span>
-                <h1>Mood Analyzer</h1>
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-emoji">🎭</span>
+                    <h1>Mood Analyzer</h1>
+                </div>
+                <button id="theme-toggle" class="theme-toggle">
+                    <span class="icon">🌙</span>
+                    <span class="label">Dark</span>
+                </button>
             </div>
             <p class="tagline">Discover the emotional tone of your text with AI</p>
         </header>
+
+        <!-- Quick Sample Texts -->
+        <section class="samples-section">
+            <p class="samples-label">Try a sample</p>
+            <div class="samples-container">
+                <button class="sample-chip" data-text="I absolutely love this product! It exceeded all my expectations and made my day so much better.">
+                    <span class="emoji">😊</span> Happy Review
+                </button>
+                <button class="sample-chip" data-text="This is the worst experience I've ever had. Completely disappointed and frustrated with everything.">
+                    <span class="emoji">😠</span> Angry Feedback
+                </button>
+                <button class="sample-chip" data-text="The meeting went okay. Nothing special happened, just the usual discussions about the project.">
+                    <span class="emoji">😐</span> Neutral Update
+                </button>
+                <button class="sample-chip" data-text="Today was an amazing day! Got promoted at work and celebrated with my family. Feeling blessed!">
+                    <span class="emoji">🎉</span> Great News
+                </button>
+                <button class="sample-chip" data-text="I'm feeling really sad and down today. Nothing seems to be going right and I need some time alone.">
+                    <span class="emoji">😢</span> Sad Note
+                </button>
+            </div>
+        </section>
 
         <section class="analyzer-card">
             <div class="input-section">
@@ -33,10 +61,20 @@
                     id="text-input" 
                     class="text-input" 
                     placeholder="Type or paste your text here to analyze its mood..."
-                    rows="5"
+                    rows="4"
                 ></textarea>
-                <div class="char-count">
-                    <span id="char-counter">0</span> characters
+                <div class="text-analytics">
+                    <div class="analytics-stats">
+                        <span class="stat-item">
+                            <span class="stat-value" id="word-count">0</span> words
+                        </span>
+                        <span class="stat-item">
+                            <span class="stat-value" id="sentence-count">0</span> sentences
+                        </span>
+                        <span class="stat-item">
+                            <span class="stat-value" id="char-counter">0</span> chars
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -60,6 +98,15 @@
                     <span id="sentiment-text">POSITIVE</span>
                 </div>
 
+                <div class="result-actions">
+                    <button id="copy-result-btn" class="action-btn">
+                        <span>📋</span> Copy Result
+                    </button>
+                    <button id="new-analysis-btn" class="action-btn">
+                        <span>✨</span> New Analysis
+                    </button>
+                </div>
+
                 <div class="confidence-section">
                     <div class="confidence-header">
                         <span>Confidence</span>
@@ -75,6 +122,46 @@
                     <div id="scores-container" class="scores-container">
                         <!-- Scores will be dynamically inserted -->
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section id="stats-section" class="stats-section hidden">
+            <div class="stats-card">
+                <div class="stats-header">
+                    <h3>📊 Mood Statistics</h3>
+                    <span id="total-analyses">0 analyses</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card positive">
+                        <span class="emoji">😊</span>
+                        <div class="value" id="positive-count">0</div>
+                        <div class="label">Positive</div>
+                    </div>
+                    <div class="stat-card neutral">
+                        <span class="emoji">😐</span>
+                        <div class="value" id="neutral-count">0</div>
+                        <div class="label">Neutral</div>
+                    </div>
+                    <div class="stat-card negative">
+                        <span class="emoji">😢</span>
+                        <div class="value" id="negative-count">0</div>
+                        <div class="label">Negative</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history-section" class="history-section hidden">
+            <div class="history-card">
+                <div class="history-header">
+                    <h3>🕓 Recent History</h3>
+                    <button id="clear-history-btn" class="clear-history-btn">Clear All</button>
+                </div>
+                <div id="history-list" class="history-list">
+                    <!-- History items will be dynamically inserted -->
                 </div>
             </div>
         </section>

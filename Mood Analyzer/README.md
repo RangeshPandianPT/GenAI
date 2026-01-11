@@ -10,7 +10,12 @@ A beautiful AI-powered sentiment analysis web application that detects the emoti
 
 - 🎯 **Real-time Sentiment Analysis** - Instantly analyze text for positive/negative emotions
 - 📊 **Confidence Scores** - See detailed confidence percentages for each sentiment
-- 🎨 **Beautiful UI** - Modern dark theme with glassmorphism and smooth animations
+- 🌙 **Dark Mode** - Beautiful dark/light theme toggle with persistence
+- 🕓 **Mood History** - Track and revisit your past analyses
+- 📈 **Statistics Dashboard** - View your mood distribution stats
+- 📋 **Quick Samples** - One-click sample texts to try instantly
+- 📤 **Copy Results** - Share your analysis results easily
+- 📝 **Text Analytics** - Word count, sentence count, and character tracking
 - ⚡ **Fast API** - Powered by FastAPI for lightning-fast responses
 - 🤗 **Hugging Face** - Uses state-of-the-art NLP models
 
@@ -57,7 +62,7 @@ Mood Analyzer/
 ├── app.py              # FastAPI backend server
 ├── static/
 │   ├── index.html      # Main HTML page
-│   ├── styles.css      # CSS styling
+│   ├── styles.css      # CSS styling (light/dark themes)
 │   └── script.js       # Frontend JavaScript
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Environment template
@@ -93,13 +98,28 @@ curl -X POST "http://localhost:8000/analyze" \
 }
 ```
 
-## 🎨 Screenshots
+## 🎨 UI Features
 
-The app features a stunning dark theme with:
-- Animated gradient background orbs
-- Glassmorphism card effects
-- Dynamic color themes based on sentiment
-- Smooth micro-animations
+### Light & Dark Mode
+Toggle between themes with a single click. Your preference is saved locally.
+
+### Quick Sample Texts
+Try pre-written samples to see how the analyzer works:
+- 😊 Happy Review
+- 😠 Angry Feedback  
+- 😐 Neutral Update
+- 🎉 Great News
+- 😢 Sad Note
+
+### Mood History
+- All analyses are saved locally
+- Click any history item to re-analyze
+- Clear history with one click
+
+### Statistics Dashboard
+- Track total analyses
+- See positive/neutral/negative breakdown
+- Visual mood distribution
 
 ## 🛠️ Tech Stack
 
@@ -107,6 +127,7 @@ The app features a stunning dark theme with:
 - **Frontend**: HTML5, CSS3, JavaScript
 - **AI Model**: DistilBERT (via Hugging Face API)
 - **Styling**: Custom CSS with CSS Variables
+- **Storage**: LocalStorage for history/preferences
 
 ## 📝 License
 
