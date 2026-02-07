@@ -412,14 +412,15 @@ newAnalysisBtn.addEventListener('click', () => {
 
 // ===== UI Helper Functions =====
 function setLoading(isLoading) {
-    analyzeBtn.disabled = isLoading;
-    
-    if (isLoading) {
-        btnText.classList.add('hidden');
-        btnLoader.classList.remove('hidden');
-    } else {
-        btnText.classList.remove('hidden');
-        btnLoader.classList.add('hidden');
+    if (analyzeBtn) {
+        analyzeBtn.disabled = isLoading;
+        if (isLoading) {
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+        } else {
+            btnText.classList.remove('hidden');
+            btnLoader.classList.add('hidden');
+        }
     }
 }
 
@@ -427,6 +428,8 @@ function showError(message) {
     errorMessage.textContent = message;
     errorSection.classList.remove('hidden');
     resultsSection.classList.add('hidden');
+    // Also hide dashboard loading if it was active
+    document.getElementById('dashboard-loading').classList.add('hidden');
 }
 
 function hideError() {
@@ -436,3 +439,142 @@ function hideError() {
 function hideResults() {
     resultsSection.classList.add('hidden');
 }
+
+
+// ===== DASHBOARD LOGIC (New) =====
+
+// Tab Switching
+const tabs = document.querySelectorAll('.nav-tab');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Remove active class from all
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        
+        // Add active to clicked
+        tab.classList.add('active');
+        document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+    });
+});
+
+// Dashboard Elements
+const feedSearchInput = document.getElementById('feed-search-input');
+const fetchFeedBtn = document.getElementById('fetch-feed-btn');
+const dashboardLoading = document.getElementById('dashboard-loading');
+const dashboardResults = document.getElementById('dashboard-results');
+const globalMoodText = document.getElementById('global-mood-text');
+const headlinesList = document.getElementById('headlines-list');
+const moodChartCanvas = document.getElementById('moodChart');
+let moodChartInstance = null;
+
+fetchFeedBtn.addEventListener('click', fetchFeed);
+feedSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') fetchFeed();
+});
+
+async function fetchFeed() {
+    const query = feedSearchInput.value.trim();
+    
+    // UI State
+    dashboardLoading.classList.remove('hidden');
+    dashboardResults.classList.add('hidden');
+    hideError();
+    
+    try {
+        const response = await fetch('/analyze-feed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: query })
+        });
+        
+        if (!response.ok) throw new Error("Failed to fetch news feed");
+        
+        const data = await response.json();
+        renderDashboard(data);
+        
+    } catch (error) {
+        console.error(error);
+        showError(error.message || "Failed to load dashboard data");
+    } finally {
+        dashboardLoading.classList.add('hidden');
+    }
+}
+
+function renderDashboard(data) {
+    dashboardResults.classList.remove('hidden');
+    
+    // 1. Global Stats
+    const { stats, headlines, query } = data;
+    globalMoodText.textContent = `${stats.overall_mood} ${getMoodEmoji(stats.overall_mood)}`;
+    
+    document.getElementById('dash-pos-count').textContent = stats.positive;
+    document.getElementById('dash-neu-count').textContent = stats.neutral;
+    document.getElementById('dash-neg-count').textContent = stats.negative;
+    
+    // 2. Chart
+    renderChart(stats);
+    
+    // 3. Headlines
+    renderHeadlines(headlines);
+}
+
+function getMoodEmoji(mood) {
+    if (mood === 'POSITIVE') return '😊';
+    if (mood === 'NEGATIVE') return '😠';
+    return '😐';
+}
+
+function renderChart(stats) {
+    if (moodChartInstance) {
+        moodChartInstance.destroy();
+    }
+    
+    const ctx = moodChartCanvas.getContext('2d');
+    moodChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive', 'Neutral', 'Negative'],
+            datasets: [{
+                data: [stats.positive, stats.neutral, stats.negative],
+                backgroundColor: [
+                    '#10b981', // Green
+                    '#9ca3af', // Gray
+                    '#ef4444'  // Red
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function renderHeadlines(headlines) {
+    headlinesList.innerHTML = '';
+    
+    if (headlines.length === 0) {
+        headlinesList.innerHTML = '<p class="text-center text-muted">No news found for this topic.</p>';
+        return;
+    }
+    
+    headlines.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `headline-item ${item.sentiment.toLowerCase()}`;
+        
+        div.innerHTML = `
+            <a href="#" target="_blank" class="headline-title">${item.emoji} ${item.title}</a>
+            <div class="headline-meta">
+                <span>Sentiment: ${item.sentiment} (${item.confidence}%)</span>
+            </div>
+        `;
+        headlinesList.appendChild(div);
+    });
+}
+
