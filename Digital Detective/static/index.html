@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Digital Detective | OSINT Dashboard</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🕵️ The Digital Detective</div>
+            <div class="status">SYSTEM: <span class="blink">ONLINE</span></div>
+        </header>
+
+        <div class="control-panel">
+            <input type="text" id="target-input" placeholder="Enter target username (e.g., Neo_Hacker_99)..." value="Neo_Hacker_99">
+            <button id="scan-btn">INITIATE SCAN</button>
+        </div>
+
+        <div class="workspace">
+            <div class="graph-container" id="network"></div>
+            
+            <div class="sidebar">
+                <div class="console-window">
+                    <div class="window-title">>> SYSTEM_LOGS</div>
+                    <div id="logs" class="logs-content">
+                        <div class="log-entry">Waiting for target input...</div>
+                    </div>
+                </div>
+                
+                <div class="details-window">
+                    <div class="window-title">>> ENTITY_DETAILS</div>
+                    <div id="details-content">
+                        <p class="muted">Select a node to view metadata.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
