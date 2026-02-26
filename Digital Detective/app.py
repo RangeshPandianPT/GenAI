@@ -4,9 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import networkx as nx
-import random
-import time
+import asyncio
 from typing import List, Dict, Any
+
+from modules.github import GitHubModule
+from modules.reddit import RedditModule
+from modules.breaches import BreachModule
 
 app = FastAPI(title="The Digital Detective")
 
@@ -18,10 +21,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# In-memory graph storage (per session typically, here global for demo)
-# Using NetworkX allows for complex graph algorithms later
-G = nx.Graph()
 
 class InvestigationRequest(BaseModel):
     username: str
@@ -42,39 +41,13 @@ class GraphResponse(BaseModel):
     edges: List[EdgeData]
     logs: List[str]
 
-# --- MOCK OSINT LOGIC ---
-# In a real app, these would be separate modules in `scrapers/`
-
-def mock_github_check(username: str) -> List[Dict]:
-    """Simulates checking GitHub for a username."""
-    time.sleep(0.5) # Simulate network delay
-    
-    # Realism: Only "find" if username looks like a dev
-    if "dev" in username or "hacker" in username or "coder" in username or username == "Neo_Hacker_99":
-        return [
-            {"type": "social", "id": f"gh_{username}", "label": "GitHub", "info": "Repo: 'Auto-Exploit-V2'"},
-            {"type": "email", "id": f"email_{username}", "label": "Email", "info": f"{username}@protonmail.com"}
-        ]
-    return []
-
-def mock_reddit_check(username: str) -> List[Dict]:
-    """Simulates checking Reddit."""
-    time.sleep(0.6)
-    if "hacker" in username or "anon" in username or username == "Neo_Hacker_99":
-         return [
-            {"type": "social", "id": f"rd_{username}", "label": "Reddit", "info": "Active in r/netsec"},
-            {"type": "crypto", "id": "btc_wallet_1A1zP1...", "label": "BTC Wallet", "info": "Found in post history"}
-        ]
-    return []
-
-def mock_breach_check(email: str) -> List[Dict]:
-    """Simulates checking data breaches for an email."""
-    if "@protonmail" in email:
-        return [
-            {"type": "password", "id": "pass_hashed", "label": "Hash", "info": "MD5: 5f4dcc3b5aa765d61d8327deb882cf99"},
-            {"type": "ip", "id": "ip_192.168.1.55", "label": "Last IP", "info": "Location: Russia (Proxy)"}
-        ]
-    return []
+# --- MODULE INITIALIZATION ---
+# Instantiate modules once, they hold no state.
+modules = [
+    GitHubModule(),
+    RedditModule(),
+    # BreachModule not directly called on username right now, usually a secondary scan
+]
 
 # --- API ENDPOINTS ---
 
@@ -82,47 +55,60 @@ def mock_breach_check(email: str) -> List[Dict]:
 async def investigate_target(request: InvestigationRequest):
     """
     Initiates an investigation on a target username.
-    Clears old graph and builds a new one.
+    Instantiates a private session graph to prevent data collision.
     """
-    global G
-    G.clear()
-    
+    # 1. Create a fresh session-based graph
+    G = nx.Graph()
     target = request.username
     logs = [f"Starting investigation for target: {target}"]
     
-    # 1. Add Target Node
+    # Add Target Node
     G.add_node(target, group="target", title="Primary Target")
     
-    # 2. Run Modules
-    findings = []
+    # 2. Run Modules Asynchronously
+    logs.append(f"Dispatching scans to {len(modules)} active modules...")
     
-    # GitHub Module
-    logs.append("Scanning GitHub...")
-    gh_results = mock_github_check(target)
-    for item in gh_results:
-        G.add_node(item["id"], group=item["type"], title=item["info"], label=item["label"])
-        G.add_edge(target, item["id"], label="found_on")
-        logs.append(f"Found GitHub profile: {item['info']}")
+    # Fire off all investigations concurrently using `asyncio.gather`
+    tasks = [module.investigate(target) for module in modules]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    # 3. Process Results & Build Graph
+    for i, module_results in enumerate(results):
+        module_name = modules[i].__class__.__name__
+        if isinstance(module_results, Exception):
+            logs.append(f"Error in {module_name}: {str(module_results)}")
+            continue
+            
+        if not module_results:
+             logs.append(f"{module_name}: No findings.")
+             continue
+             
+        logs.append(f"{module_name}: Found {len(module_results)} interesting artifacts.")
         
-        # Recursive check (if email found)
-        if item["type"] == "email":
-            email = item["info"]
-            logs.append(f"Scanning breaches for {email}...")
-            breach_results = mock_breach_check(email)
-            for b_item in breach_results:
-                G.add_node(b_item["id"], group=b_item["type"], title=b_item["info"], label=b_item["label"])
-                G.add_edge(item["id"], b_item["id"], label="leaked_in")
-                logs.append(f"Found breach data: {b_item['info']}")
+        for item in module_results:
+            node_id = item["id"]
+            
+            # Prevent re-adding the exact same node unnecessarily
+            if not G.has_node(node_id):
+                 G.add_node(
+                     node_id, 
+                     group=item.get("type", "unknown"), 
+                     title=item.get("info", ""), 
+                     label=item.get("label", node_id)
+                 )
+                 
+            # Determine connection point
+            # If the artifact provided a source_id, link it there, otherwise link to the main target
+            source_id = item.get("source_id", target)
+            
+            # Ensure the source node exists in the graph before adding edge
+            if not G.has_node(source_id):
+                # Fallback to main target if source is missing to prevent graph disconnection
+                source_id = target 
+                
+            G.add_edge(source_id, node_id, label=item.get("relation", "linked_to"))
 
-    # Reddit Module
-    logs.append("Scanning Reddit...")
-    rd_results = mock_reddit_check(target)
-    for item in rd_results:
-        G.add_node(item["id"], group=item["type"], title=item["info"], label=item["label"])
-        G.add_edge(target, item["id"], label="mentions")
-        logs.append(f"Found Reddit activity: {item['info']}")
-
-    # 3. Format Response for Vis.js
+    # 4. Format Response for Vis.js
     nodes = []
     for node_id, attrs in G.nodes(data=True):
         nodes.append(NodeData(
@@ -140,7 +126,7 @@ async def investigate_target(request: InvestigationRequest):
             label=attrs.get("label", "")
         ))
         
-    logs.append("Investigation complete.")
+    logs.append("Investigation sweep complete.")
     
     return GraphResponse(nodes=nodes, edges=edges, logs=logs)
 
