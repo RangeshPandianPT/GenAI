@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API Selection - Change this to switch between APIs
-API_TYPE = os.getenv('API_TYPE', 'huggingface')  # Options: "openai", "ollama", "huggingface"
+API_TYPE = os.getenv('API_TYPE', 'huggingface')  # Options: "openai", "ollama", "huggingface", "openrouter"
 
 # ========== Hugging Face Configuration ==========
 HF_API_KEY = os.getenv('HF_API_KEY', '')
@@ -26,9 +26,15 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 OPENAI_EMBEDDING_MODEL = os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-ada-002')
 OPENAI_CHAT_MODEL = os.getenv('OPENAI_CHAT_MODEL', 'gpt-3.5-turbo')
 
+# ========== OpenRouter Configuration ==========
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+OPENROUTER_EMBEDDING_MODEL = os.getenv('OPENROUTER_EMBEDDING_MODEL', 'text-embedding-ada-002')
+OPENROUTER_CHAT_MODEL = os.getenv('OPENROUTER_CHAT_MODEL', 'openai/gpt-oss-120b:free')
+
 # ========== Embedding Dimensions ==========
 EMBEDDING_DIMENSIONS = {
     "openai": 1536,
+    "openrouter": 1536,  # OpenRouter with text-embedding-ada-002 uses 1536 dimensions
     "ollama": 768,  # nomic-embed-text uses 768 dimensions
     "huggingface": 768,  # BAAI/bge-base-en-v1.5 uses 768 dimensions
 }
@@ -63,6 +69,11 @@ def get_api_config():
         config["embedding_model"] = HF_EMBEDDING_MODEL
         config["chat_model"] = HF_CHAT_MODEL
         config["base_url"] = "https://router.huggingface.co/hf-inference"
+    elif API_TYPE == "openrouter":
+        config["api_key"] = OPENROUTER_API_KEY
+        config["embedding_model"] = OPENROUTER_EMBEDDING_MODEL
+        config["chat_model"] = OPENROUTER_CHAT_MODEL
+        config["base_url"] = "https://openrouter.ai/api/v1"
     
     return config
 
@@ -82,5 +93,11 @@ def validate_config():
         print(f"✓ Using Hugging Face API")
         print(f"✓ Embedding model: {HF_EMBEDDING_MODEL}")
         print(f"✓ Chat model: {HF_CHAT_MODEL}")
+    elif API_TYPE == "openrouter":
+        if not OPENROUTER_API_KEY:
+            raise ValueError("OPENROUTER_API_KEY is not set. Please set it in your .env file.")
+        print(f"✓ Using OpenRouter API")
+        print(f"✓ Chat model: {OPENROUTER_CHAT_MODEL}")
+        print(f"✓ Embedding model: {OPENROUTER_EMBEDDING_MODEL}")
     else:
-        raise ValueError(f"Unknown API_TYPE: {API_TYPE}. Use 'openai', 'ollama', or 'huggingface'")
+        raise ValueError(f"Unknown API_TYPE: {API_TYPE}. Use 'openai', 'ollama', 'huggingface', or 'openrouter'")
