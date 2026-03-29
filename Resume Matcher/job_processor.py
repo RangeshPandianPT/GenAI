@@ -16,6 +16,27 @@ def get_embedding(text, config):
         response = client.embeddings.create(input=text, model=config["embedding_model"])
         return response.data[0].embedding
     
+    elif config["api_type"] == "openrouter":
+        headers = {
+            "Authorization": f"Bearer {config['api_key']}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(
+            f"{config['base_url']}/embeddings",
+            headers=headers,
+            json={
+                "model": config["embedding_model"],
+                "input": text[:8000] if len(text) > 8000 else text
+            }
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            return result["data"][0]["embedding"]
+        else:
+            raise Exception(f"OpenRouter API error: {response.status_code} - {response.text}")
+    
     elif config["api_type"] == "ollama":
         response = requests.post(
             f"{config['base_url']}/api/embeddings",

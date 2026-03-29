@@ -143,16 +143,21 @@ Resume Matcher/
 
 - **Ollama** (Default) - Free, runs locally
 - **OpenAI** - Requires API key
+- **Hugging Face** - Requires API key
+- **OpenRouter** - Requires API key
 
 ### Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `API_TYPE` | API to use (`ollama` or `openai`) | `ollama` |
+| `API_TYPE` | API to use (`ollama`, `openai`, `huggingface`, or `openrouter`) | `ollama` |
 | `OLLAMA_BASE_URL` | Ollama server URL | `http://localhost:11434` |
 | `OLLAMA_EMBEDDING_MODEL` | Embedding model | `nomic-embed-text` |
 | `OLLAMA_CHAT_MODEL` | Chat model | `llama3.2` |
 | `OPENAI_API_KEY` | OpenAI API key | - |
+| `OPENROUTER_API_KEY` | OpenRouter API key | - |
+| `OPENROUTER_EMBEDDING_MODEL` | OpenRouter embedding model | `text-embedding-ada-002` |
+| `OPENROUTER_CHAT_MODEL` | OpenRouter chat model | `openai/gpt-oss-120b:free` |
 
 ## 📊 Scoring Algorithm
 
