@@ -41,6 +41,29 @@ def get_chat_response(messages, config):
         else:
             raise Exception(f"Ollama API error: {response.status_code} - {response.text}")
     
+    elif config["api_type"] == "openrouter":
+        headers = {
+            "Authorization": f"Bearer {config['api_key']}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post(
+            f"{config['base_url']}/chat/completions",
+            headers=headers,
+            json={
+                "model": config["chat_model"],
+                "messages": messages,
+                "temperature": 0.3,
+                "max_tokens": 1024
+            }
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result["choices"][0]["message"]["content"]
+        else:
+            raise Exception(f"OpenRouter API error: {response.status_code} - {response.text}")
+    
     elif config["api_type"] == "huggingface":
         # Build prompt for Hugging Face models
         prompt = ""
