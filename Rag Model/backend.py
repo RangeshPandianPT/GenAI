@@ -300,11 +300,13 @@ def ask_question():
         
         for score, idx in zip(scores[0], indices[0]):
             chunk_text = chunks[idx]
-            page_num = metadata[idx]['estimated_page']
-            context_parts.append(f"[Page {page_num}]: {chunk_text}")
+            page_num = metadata[idx].get('estimated_page', 1)
+            doc_name = metadata[idx].get('filename', 'Unknown Document')
+            context_parts.append(f"[File: {doc_name}, Page: {page_num}]: {chunk_text}")
             relevant_chunks.append({
                 "text": chunk_text[:200] + "...",
                 "page": page_num,
+                "document": doc_name,
                 "score": float(score)
             })
         
