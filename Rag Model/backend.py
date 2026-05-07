@@ -135,7 +135,8 @@ def check_status():
                 "success": True,
                 "database_exists": True,
                 "total_chunks": len(data['chunks']),
-                "total_pages": data['total_pages']
+                "total_pages": data.get('total_pages', 0),
+                "files": data.get('files', [])
             })
         except Exception as e:
             return jsonify({
