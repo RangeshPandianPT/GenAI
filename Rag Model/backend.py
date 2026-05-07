@@ -341,6 +341,22 @@ def ask_question():
         }), 500
 
 
+@app.route('/api/documents', methods=['GET'])
+def list_documents():
+    """List all uploaded documents in the vector database"""
+    if os.path.exists("chunks.pkl"):
+        try:
+            with open("chunks.pkl", "rb") as f:
+                data = pickle.load(f)
+            return jsonify({
+                "success": True,
+                "files": data.get('files', [])
+            })
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+    return jsonify({"success": True, "files": []})
+
+
 @app.route('/api/clear', methods=['POST'])
 def clear_database():
     """Clear the vector database"""
