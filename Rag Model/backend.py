@@ -211,10 +211,28 @@ def upload_pdf():
             embedding = get_embedding(chunk, config)
             embeddings.append(embedding)
         
-        # Create FAISS index
         embeddings = np.array(embeddings)
-        embedding_dim = config["embedding_dim"]
-        index = faiss.IndexFlatIP(embedding_dim)
+        
+        # Check if database exists to append
+        if os.path.exists("vectors.index") and os.path.exists("chunks.pkl"):
+            index = faiss.read_index("vectors.index")
+            with open("chunks.pkl", "rb") as f:
+                existing_data = pickle.load(f)
+            
+            chunks = existing_data['chunks'] + new_chunks
+            chunk_metadata = existing_data['metadata'] + new_chunk_metadata
+            total_pages_all = existing_data.get('total_pages', 0) + total_pages
+            files = existing_data.get('files', [])
+            if filename not in files:
+                files.append(filename)
+        else:
+            embedding_dim = config["embedding_dim"]
+            index = faiss.IndexFlatIP(embedding_dim)
+            chunks = new_chunks
+            chunk_metadata = new_chunk_metadata
+            total_pages_all = total_pages
+            files = [filename]
+            
         index.add(embeddings.astype('float32'))
         
         # Save to files
@@ -223,7 +241,8 @@ def upload_pdf():
             pickle.dump({
                 'chunks': chunks,
                 'metadata': chunk_metadata,
-                'total_pages': total_pages
+                'total_pages': total_pages_all,
+                'files': files
             }, f)
         
         return jsonify({
