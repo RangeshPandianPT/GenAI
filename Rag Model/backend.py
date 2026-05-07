@@ -187,22 +187,27 @@ def upload_pdf():
             text = ''.join([p['text'] for p in page_texts])
         
         # Create chunks
-        chunks = []
-        chunk_metadata = []
+        new_chunks = []
+        new_chunk_metadata = []
         
-        for i in range(0, len(text), 400):
+        # Prevent division by zero
+        text_len = len(text)
+        chars_per_page = max(text_len // max(total_pages, 1), 1)
+        
+        for i in range(0, text_len, 400):
             chunk_text = text[i:i + 500]
-            chunks.append(chunk_text)
+            new_chunks.append(chunk_text)
             
-            estimated_page = min((i // (len(text) // total_pages)) + 1, total_pages)
-            chunk_metadata.append({
+            estimated_page = min((i // chars_per_page) + 1, total_pages)
+            new_chunk_metadata.append({
                 'start_pos': i,
-                'estimated_page': estimated_page
+                'estimated_page': estimated_page,
+                'filename': filename
             })
         
         # Get embeddings
         embeddings = []
-        for chunk in chunks:
+        for chunk in new_chunks:
             embedding = get_embedding(chunk, config)
             embeddings.append(embedding)
         
@@ -225,7 +230,7 @@ def upload_pdf():
             "success": True,
             "message": "PDF processed successfully",
             "total_pages": total_pages,
-            "total_chunks": len(chunks),
+            "total_chunks": len(new_chunks),
             "filename": filename
         })
     
