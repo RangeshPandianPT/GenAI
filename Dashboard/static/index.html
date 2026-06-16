@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Central Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>GenAI <span>Hub</span></h1>
+            <p>Your central command for AI-powered micro-applications.</p>
+        </header>
+
+        <main class="grid">
+            <!-- Digital Detective -->
+            <a href="http://localhost:8001" target="_blank" class="card" style="--accent: #ff2a5f;">
+                <div class="icon-wrapper"><ion-icon name="search-outline"></ion-icon></div>
+                <h2>Digital Detective</h2>
+                <p>OSINT Graph API analyzing Reddit, GitHub, and Breaches.</p>
+                <div class="badge">Port 8001</div>
+            </a>
+
+            <!-- Mood Analyzer -->
+            <a href="http://localhost:8000" target="_blank" class="card" style="--accent: #00d2ff;">
+                <div class="icon-wrapper"><ion-icon name="happy-outline"></ion-icon></div>
+                <h2>Mood Analyzer</h2>
+                <p>Real-time sentiment analysis & live news feed tracking using DistilBERT.</p>
+                <div class="badge">Port 8000</div>
+            </a>
+
+            <!-- RAG Model -->
+            <a href="http://localhost:5000" target="_blank" class="card" style="--accent: #7b2cbf;">
+                <div class="icon-wrapper"><ion-icon name="document-text-outline"></ion-icon></div>
+                <h2>RAG Q&A</h2>
+                <p>Retrieval-Augmented Generation with PDF vector indexing (FAISS).</p>
+                <div class="badge">Port 5000</div>
+            </a>
+
+            <!-- Resume Matcher -->
+            <a href="http://localhost:8003" target="_blank" class="card" style="--accent: #00e676;">
+                <div class="icon-wrapper"><ion-icon name="briefcase-outline"></ion-icon></div>
+                <h2>Resume Matcher</h2>
+                <p>Automated ATS parsing and job-skill matching tool.</p>
+                <div class="badge">Port 8003</div>
+            </a>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

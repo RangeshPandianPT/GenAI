@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 from modules.github import GitHubModule
 from modules.reddit import RedditModule
 from modules.breaches import BreachModule
+from modules.hackernews import HackerNewsModule
 
 app = FastAPI(title="The Digital Detective")
 
@@ -46,6 +47,7 @@ class GraphResponse(BaseModel):
 modules = [
     GitHubModule(),
     RedditModule(),
+    HackerNewsModule(),
     # BreachModule not directly called on username right now, usually a secondary scan
 ]
 

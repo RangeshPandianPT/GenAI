@@ -266,7 +266,6 @@ def ask_question():
     """Ask a question about the processed PDF"""
     data = request.get_json()
     question = data.get('question', '').strip()
-    chat_history = data.get('history', [])  # New: Accept chat history
     
     if not question:
         return jsonify({"success": False, "error": "No question provided"}), 400
@@ -313,23 +312,17 @@ def ask_question():
         
         context = '\n\n'.join(context_parts)
         
-        # Get answer with conversational memory
+        # Get answer
         messages = [
             {
                 "role": "system",
-                "content": f"You are answering questions about a {total_pages}-page document. When providing answers, mention page numbers when relevant. Be concise and helpful. Base your answers primarily on the context provided."
+                "content": f"You are answering questions about a {total_pages}-page document. When providing answers, mention page numbers when relevant. Be concise and helpful."
+            },
+            {
+                "role": "user",
+                "content": f"Context: {context}\n\nQuestion: {question}\n\nAnswer based on the context:"
             }
         ]
-        
-        # Append chat history
-        for msg in chat_history:
-            messages.append({"role": msg.get("role"), "content": msg.get("content")})
-            
-        # Append current question with context
-        messages.append({
-            "role": "user",
-            "content": f"Context: {context}\n\nQuestion: {question}\n\nAnswer based on the context:"
-        })
         
         answer = get_chat_response(messages, config)
         
