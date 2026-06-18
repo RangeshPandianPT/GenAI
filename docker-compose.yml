@@ -1,0 +1,50 @@
+services:
+  dashboard:
+    build:
+      context: ./Dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Dashboard:/app
+    depends_on:
+      - digital_detective
+      - mood_analyzer
+      - rag_model
+      - resume_matcher
+
+  digital_detective:
+    build:
+      context: ./Digital Detective
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./Digital Detective:/app
+
+  mood_analyzer:
+    build:
+      context: ./Mood Analyzer
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Mood Analyzer:/app
+
+  rag_model:
+    build:
+      context: ./Rag Model
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Rag Model:/app
+
+  resume_matcher:
+    build:
+      context: ./Resume Matcher
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./Resume Matcher:/app
