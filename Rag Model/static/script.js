@@ -220,12 +220,22 @@ async function askQuestion() {
     const loadingId = addLoadingMessage();
     
     try {
+        const historyForBackend = chatHistory
+            .filter(msg => msg.type === 'bot' || msg.type === 'user') // avoid passing other types if any
+            .map(msg => ({
+                role: msg.type === 'bot' ? 'assistant' : 'user',
+                content: msg.content
+            }));
+
         const response = await fetch(`${API_BASE}/ask`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ question })
+            body: JSON.stringify({ 
+                question: question,
+                history: historyForBackend
+            })
         });
         
         const data = await response.json();
