@@ -48,7 +48,7 @@ modules = [
     GitHubModule(),
     RedditModule(),
     HackerNewsModule(),
-    # BreachModule not directly called on username right now, usually a secondary scan
+    BreachModule(),
 ]
 
 # --- API ENDPOINTS ---
