@@ -1,0 +1,43 @@
+{
+    "resume_id": "",
+    "personal_information": {
+        "name": "",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "linkedin": ""
+    },
+    "education": [
+        {
+            "degree": "",
+            "institution": "",
+            "field": "",
+            "year": ""
+        }
+    ],
+    "experience": [
+        {
+            "company": "",
+            "role": "",
+            "start_date": "",
+            "end_date": "",
+            "responsibilities": []
+        }
+    ],
+    "skills": [
+        {
+            "name": "",
+            "category": ""
+        }
+    ],
+    "projects": [
+        {
+            "name": "",
+            "description": "",
+            "technologies": []
+        }
+    ],
+    "certifications": [],
+    "achievements": [],
+    "summary": ""
+}
