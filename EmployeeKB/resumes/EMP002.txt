@@ -1,0 +1,29 @@
+Employee Profile
+
+Employee ID: EMP002
+Name: Priya Sharma
+
+Professional Summary:
+Data Analyst specializing in business intelligence, data visualization, and analytical reporting.
+
+Skills:
+Python, SQL, Power BI, Excel, Tableau
+
+Projects:
+Sales Intelligence Dashboard
+Customer Behavior Analysis
+
+Strengths:
+Communication, analytical thinking, attention to detail
+
+Areas for Improvement:
+Advanced machine learning skills
+
+Certifications:
+Microsoft Power BI
+
+Manager Feedback:
+Priya consistently provides clear analytical findings and accurate reports.
+
+Career Goal:
+Become a senior data analyst.

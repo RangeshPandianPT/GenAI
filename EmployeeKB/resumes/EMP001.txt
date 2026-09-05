@@ -1,0 +1,29 @@
+Employee Profile
+
+Employee ID: EMP001
+Name: Arjun Kumar
+
+Professional Summary:
+Software Engineer specializing in enterprise application development and backend systems.
+
+Skills:
+Python, Java, SQL, Neo4j, Docker, REST APIs
+
+Projects:
+Employee Knowledge Graph
+Customer Analytics Platform
+
+Strengths:
+Problem solving, system design, teamwork
+
+Areas for Improvement:
+Leadership and presentation skills
+
+Certifications:
+AWS Cloud Practitioner
+
+Manager Feedback:
+Arjun consistently delivers projects before deadlines and demonstrates strong technical ability.
+
+Career Goal:
+Become a senior software architect.
